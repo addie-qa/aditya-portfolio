@@ -2,8 +2,8 @@ import { contact, site } from "@/content/site";
 
 const links = [
   { label: "Email", value: site.email, href: `mailto:${site.email}` },
-  { label: "LinkedIn", value: "linkedin.com/in/adityaarorasde", href: site.linkedin },
-  { label: "GitHub", value: "github.com/Adityasgit", href: site.github },
+  { label: "LinkedIn", value: "linkedin.com/in/aditya-arora-331364234/", href: site.linkedin },
+  { label: "GitHub", value: "github.com/addie-qa", href: site.github },
   { label: "Resume", value: "Open PDF", href: site.resume },
 ];
 
