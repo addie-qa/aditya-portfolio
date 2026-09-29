@@ -1,4 +1,5 @@
 "use client";
+
 import {
   corridorTravel,
   galleryClients,
@@ -12,11 +13,12 @@ import {
   type RoomId,
 } from "@/content/experience";
 import { CeilingBays, DataField, FloatingBits, FloorGuide, StatusHolo, WallRibs } from "@/components/experience/Atmosphere";
-import { Html, useTexture } from "@react-three/drei";
+import { Text, useTexture } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import gsap from "gsap";
 import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
 import * as THREE from "three";
+
 
 type Quality = "high" | "medium" | "low";
 
@@ -83,130 +85,6 @@ function repeat(texture: THREE.Texture, x: number, y: number) {
   return texture;
 }
 
-function wrapText(context: CanvasRenderingContext2D, text: string, maxWidth: number) {
-  const words = text.split(/\s+/).filter(Boolean);
-  const lines: string[] = [];
-  let line = "";
-  for (const word of words) {
-    const trial = line ? `${line} ${word}` : word;
-    if (context.measureText(trial).width > maxWidth && line) {
-      lines.push(line);
-      line = word;
-    } else {
-      line = trial;
-    }
-  }
-  if (line) lines.push(line);
-  return lines.length ? lines : [""];
-}
-
-function makeTexture(canvas: HTMLCanvasElement) {
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.anisotropy = 4;
-  texture.needsUpdate = true;
-  return texture;
-}
-
-function panelTexture(title: string, lines: string[]) {
-  const canvas = document.createElement("canvas");
-  canvas.width = 1024;
-  canvas.height = 640;
-  const context = canvas.getContext("2d");
-  if (!context) return new THREE.CanvasTexture(canvas);
-  context.fillStyle = "#221f2c";
-  context.fillRect(0, 0, 1024, 640);
-  context.strokeStyle = "#c4a5ff";
-  context.lineWidth = 12;
-  context.strokeRect(18, 18, 988, 604);
-  context.fillStyle = "#ffffff";
-  context.font = "700 62px sans-serif";
-  const titleLines = wrapText(context, title, 900).slice(0, 2);
-  titleLines.forEach((line, index) => context.fillText(line, 56, 108 + index * 70));
-  context.fillStyle = "#e7e2f4";
-  context.font = "400 34px sans-serif";
-  const body = lines.flatMap((line) => wrapText(context, line, 900));
-  const start = 118 + titleLines.length * 70;
-  body.slice(0, 8).forEach((line, index) => context.fillText(line, 56, start + index * 46));
-  return makeTexture(canvas);
-}
-
-function gateTexture(title: string, kicker: string) {
-  const canvas = document.createElement("canvas");
-  canvas.width = 768;
-  canvas.height = 1024;
-  const context = canvas.getContext("2d");
-  if (!context) return new THREE.CanvasTexture(canvas);
-  context.fillStyle = "#121018";
-  context.fillRect(0, 0, 768, 1024);
-  context.strokeStyle = "#b794ff";
-  context.lineWidth = 8;
-  context.strokeRect(28, 28, 712, 968);
-  context.fillStyle = "#ffffff";
-  context.textAlign = "center";
-  context.font = "700 64px sans-serif";
-  const titles = wrapText(context, title.toUpperCase(), 620).slice(0, 3);
-  titles.forEach((line, index) => context.fillText(line, 384, 390 + index * 74));
-  context.fillStyle = "#d5ccf0";
-  context.font = "400 32px sans-serif";
-  wrapText(context, kicker, 620)
-    .slice(0, 2)
-    .forEach((line, index) => context.fillText(line, 384, 430 + titles.length * 74 + index * 42));
-  context.fillStyle = "#c4a5ff";
-  context.font = "600 28px sans-serif";
-  context.fillText("ENTER  →", 384, 860);
-  context.textAlign = "left";
-  return makeTexture(canvas);
-}
-
-function tileTexture(mark: string, name: string) {
-  const canvas = document.createElement("canvas");
-  canvas.width = 384;
-  canvas.height = 384;
-  const context = canvas.getContext("2d");
-  if (!context) return new THREE.CanvasTexture(canvas);
-  context.fillStyle = "#1b1826";
-  context.fillRect(0, 0, 384, 384);
-  context.strokeStyle = "#c4a5ff";
-  context.lineWidth = 8;
-  context.strokeRect(14, 14, 356, 356);
-  context.fillStyle = "#c4a5ff";
-  context.textAlign = "center";
-  context.font = "700 78px sans-serif";
-  context.fillText(mark, 192, 168);
-  context.fillStyle = "#ffffff";
-  context.font = "600 26px sans-serif";
-  wrapText(context, name, 320)
-    .slice(0, 3)
-    .forEach((line, index) => context.fillText(line, 192, 230 + index * 34));
-  context.textAlign = "left";
-  return makeTexture(canvas);
-}
-
-function headerTexture(title: string, subtitle: string) {
-  const canvas = document.createElement("canvas");
-  canvas.width = 1400;
-  canvas.height = 360;
-  const context = canvas.getContext("2d");
-  if (!context) return new THREE.CanvasTexture(canvas);
-  context.fillStyle = "#16131f";
-  context.fillRect(0, 0, 1400, 360);
-  context.strokeStyle = "#c4a5ff";
-  context.lineWidth = 8;
-  context.strokeRect(12, 12, 1376, 336);
-  context.fillStyle = "#ffffff";
-  context.textAlign = "center";
-  context.font = "700 72px sans-serif";
-  context.fillText(title, 700, 140);
-  context.fillStyle = "#e4def4";
-  context.font = "400 32px sans-serif";
-  wrapText(context, subtitle, 1240)
-    .slice(0, 2)
-    .forEach((line, index) => context.fillText(line, 700, 210 + index * 42));
-  context.textAlign = "left";
-  return makeTexture(canvas);
-}
-
 function GateLight({ position, aim }: { position: [number, number, number]; aim: [number, number, number] }) {
   const light = useRef<THREE.SpotLight>(null);
   const target = useRef<THREE.Object3D>(null);
@@ -218,6 +96,81 @@ function GateLight({ position, aim }: { position: [number, number, number]; aim:
       <spotLight ref={light} position={position} angle={0.5} penumbra={0.85} intensity={7} distance={8} decay={2} color="#d9ccff" />
       <object3D ref={target} position={aim} />
     </>
+  );
+}
+
+function InfoPanel({
+  position,
+  rotation,
+  title,
+  lines,
+  size = [0.84, 0.58],
+  onClick,
+}: {
+  position: [number, number, number];
+  rotation: [number, number, number];
+  title: string;
+  lines: string[];
+  size?: [number, number];
+  onClick?: (e: any) => void;
+}) {
+  const [width, height] = size;
+  const paddingX = 0.05;
+  const contentWidth = width - paddingX * 2;
+
+  return (
+    <group
+      position={position}
+      rotation={rotation}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (onClick) onClick(e);
+      }}
+      onPointerOver={(e) => {
+        if (onClick) {
+          e.stopPropagation();
+          document.body.style.cursor = "pointer";
+        }
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = "";
+      }}
+    >
+      <mesh position={[0, 0, 0]}>
+        <planeGeometry args={[width, height]} />
+        <meshStandardMaterial color="#1c1827" roughness={0.4} metalness={0.1} />
+      </mesh>
+
+      <mesh position={[0, 0, -0.001]}>
+        <planeGeometry args={[width + 0.02, height + 0.02]} />
+        <meshBasicMaterial color="#c4a5ff" />
+      </mesh>
+
+      <Text
+        position={[-width / 2 + paddingX, height / 2 - 0.06, 0.005]}
+        anchorX="left"
+        anchorY="top"
+        fontSize={Math.min(0.07, width * 0.08)}
+        maxWidth={contentWidth}
+        color="#ffffff"
+      >
+        {title}
+      </Text>
+
+      {lines.map((line, idx) => (
+        <Text
+          key={idx}
+          position={[-width / 2 + paddingX, height / 2 - 0.15 - idx * 0.055, 0.005]}
+          anchorX="left"
+          anchorY="top"
+          fontSize={Math.min(0.042, width * 0.05)}
+          maxWidth={contentWidth}
+          color="#dcd2f3"
+        >
+          {line}
+        </Text>
+      ))}
+    </group>
   );
 }
 
@@ -238,8 +191,8 @@ function Door({
 }) {
   const left = useRef<THREE.Group>(null);
   const right = useRef<THREE.Group>(null);
-  const label = useMemo(() => gateTexture(door.title, door.kicker), [door.kicker, door.title]);
   const leds = useRef<THREE.Group>(null);
+
   const motePositions = useMemo(() => {
     const values = new Float32Array(40 * 3);
     for (let index = 0; index < 40; index += 1) {
@@ -250,21 +203,37 @@ function Door({
     return values;
   }, []);
 
-  useEffect(() => () => label.dispose(), [label]);
+  const shouldBeOpen = open || near;
+  const prevOpenRef = useRef<boolean>(shouldBeOpen);
 
   useEffect(() => {
-    const duration = reduce ? 0 : 1.15;
-    const leftTween = left.current
-      ? gsap.to(left.current.position, { x: open ? -1.35 : -0.46, duration, ease: "power3.inOut" })
-      : null;
-    const rightTween = right.current
-      ? gsap.to(right.current.position, { x: open ? 1.35 : 0.46, duration, ease: "power3.inOut" })
-      : null;
-    return () => {
-      leftTween?.kill();
-      rightTween?.kill();
-    };
-  }, [open, reduce]);
+    if (prevOpenRef.current === shouldBeOpen) return;
+    prevOpenRef.current = shouldBeOpen;
+
+    const duration = reduce ? 0 : 1.0;
+    const leftTargetX = shouldBeOpen ? -1.35 : -0.46;
+    const rightTargetX = shouldBeOpen ? 1.35 : 0.46;
+
+    if (left.current) {
+      gsap.killTweensOf(left.current.position);
+      gsap.to(left.current.position, {
+        x: leftTargetX,
+        duration,
+        overwrite: "auto",
+        ease: "power3.inOut",
+      });
+    }
+
+    if (right.current) {
+      gsap.killTweensOf(right.current.position);
+      gsap.to(right.current.position, {
+        x: rightTargetX,
+        duration,
+        overwrite: "auto",
+        ease: "power3.inOut",
+      });
+    }
+  }, [shouldBeOpen, reduce]);
 
   useFrame(({ clock }) => {
     const group = leds.current;
@@ -279,8 +248,11 @@ function Door({
     });
   });
 
-  const enter = (event: { stopPropagation: () => void }) => {
-    event.stopPropagation();
+  const enter = (event: any) => {
+    if (event) {
+      event.stopPropagation();
+      if (event.nativeEvent) event.nativeEvent.stopImmediatePropagation();
+    }
     onEnter(door.id);
   };
 
@@ -325,85 +297,41 @@ function Door({
           <pointsMaterial color="#d7c8ff" size={near ? 0.035 : 0.02} transparent opacity={near ? 0.8 : 0.35} depthWrite={false} />
         </points>
       )}
-      <mesh position={[0, 0.05, 0.12]} onClick={enter}>
-        <planeGeometry args={[1.55, 2.05]} />
-        <meshBasicMaterial map={label} toneMapped={false} />
-      </mesh>
+{shouldBeOpen && (
+  <InfoPanel
+    title={door.title.toUpperCase()}
+    lines={[door.kicker, "ENTER →"]}
+    rotation={[0, 0, 0]}
+    position={[0, 0.05, 0.12]}
+    size={[1.2, 1.4]}
+  />
+)}
       {[
         { ref: left, x: -0.46 },
         { ref: right, x: 0.46 },
       ].map((leaf) => (
         <group key={leaf.x} ref={leaf.ref} position={[leaf.x, 0, 0.16]}>
-          <mesh
-            onClick={enter}
-            onPointerOver={(event) => {
-              event.stopPropagation();
-              document.body.style.cursor = "pointer";
-            }}
-            onPointerOut={() => {
-              document.body.style.cursor = "";
-            }}
-          >
-            <boxGeometry args={[0.86, 2.4, 0.04]} />
-            <meshBasicMaterial color="#101018" transparent opacity={0.72} />
-          </mesh>
+       <mesh
+  onClick={enter}
+  onPointerOver={(event) => {
+    event.stopPropagation();
+    document.body.style.cursor = "pointer";
+  }}
+  onPointerOut={() => {
+    document.body.style.cursor = "";
+  }}
+>
+  <boxGeometry args={[0.86, 2.4, 0.04]} />
+  <meshBasicMaterial
+    color="#100e16"
+    transparent
+    opacity={shouldBeOpen ? 0 : 0.72}
+    depthWrite={false}
+  />
+</mesh>
         </group>
       ))}
     </group>
-  );
-}
-
-function InfoPanel({
-  position,
-  rotation,
-  title,
-  lines,
-  size = [0.84, 0.58],
-  active,
-  onClick,
-}: {
-  position: [number, number, number];
-  rotation: [number, number, number];
-  title: string;
-  lines: string[];
-  size?: [number, number];
-  active?: boolean;
-  onClick?: () => void;
-}) {
-  const texture = useMemo(() => panelTexture(title, lines), [lines, title]);
-  const mesh = useRef<THREE.Mesh>(null);
-  useEffect(() => () => texture.dispose(), [texture]);
-  return (
-    <mesh
-      ref={mesh}
-      position={position}
-      rotation={rotation}
-      onClick={(event) => {
-        if (!onClick) return;
-        event.stopPropagation();
-        onClick();
-      }}
-      onPointerOver={(event) => {
-        if (!onClick) return;
-        event.stopPropagation();
-        document.body.style.cursor = "pointer";
-        if (mesh.current) mesh.current.scale.setScalar(1.045);
-      }}
-      onPointerOut={() => {
-        document.body.style.cursor = "";
-        if (mesh.current) mesh.current.scale.setScalar(1);
-      }}
-    >
-      <planeGeometry args={size} />
-      <meshStandardMaterial
-        map={texture}
-        emissiveMap={texture}
-        emissive="#ffffff"
-        emissiveIntensity={active ? 0.62 : 0.48}
-        roughness={0.72}
-        metalness={0.04}
-      />
-    </mesh>
   );
 }
 
@@ -448,9 +376,11 @@ function RoomLights({ door, quality }: { door: (typeof DOORS)[number]; quality: 
   const accent = useRef<THREE.PointLight>(null);
   const target = useRef<THREE.Object3D>(null);
   const reveal = useRef(0);
+
   useLayoutEffect(() => {
     if (light.current && target.current) light.current.target = target.current;
   }, []);
+
   useFrame((_, delta) => {
     reveal.current = Math.min(1, reveal.current + Math.min(delta, 0.05) / 1.1);
     const level = reveal.current;
@@ -458,6 +388,7 @@ function RoomLights({ door, quality }: { door: (typeof DOORS)[number]; quality: 
     if (light.current) light.current.intensity = 12 * level;
     if (accent.current) accent.current.intensity = (quality === "low" ? 1.2 : 2.2) * level;
   });
+
   const x = door.side * 4.4;
   return (
     <group>
@@ -475,6 +406,8 @@ function faceFor(door: (typeof DOORS)[number]): [number, number, number] {
   return [0, door.side === -1 ? Math.PI / 2 : -Math.PI / 2, 0];
 }
 
+const LAB_HEADER_LINES = [lab.tagline];
+
 function LabRoom({ door, quality }: { door: (typeof DOORS)[number]; quality: Quality }) {
   const face = faceFor(door);
   const panels = [...labPanels, ...labScreens];
@@ -490,29 +423,28 @@ function LabRoom({ door, quality }: { door: (typeof DOORS)[number]; quality: Qua
         position={[door.side * 7.48, 2.42, door.z]}
         size={[quality === "low" ? 1.8 : 3.15, 0.42]}
       />
-     {panels.map((panel, index) => {
-  const column = index % columns;
-  const row = Math.floor(index / columns);
-  const rowCount = Math.min(columns, panels.length - row * columns);
-  const span = (column - (rowCount - 1) / 2) * gap;
-  const z = door.z + span * (door.side === -1 ? -1 : 1);
+      {panels.map((panel, index) => {
+        const column = index % columns;
+        const row = Math.floor(index / columns);
+        const rowCount = Math.min(columns, panels.length - row * columns);
+        const span = (column - (rowCount - 1) / 2) * gap;
+        const z = door.z + span * (door.side === -1 ? -1 : 1);
 
-  return (
-    <InfoPanel
-      key={`${panel.title}-${index}`}
-      title={panel.title}
-      lines={panel.lines}
-      rotation={face}
-      position={[
-        door.side * 7.48,
-        (quality === "low" ? 1.88 : 1.86) -
-          row * (quality === "low" ? 0.42 : 0.66),
-        z,
-      ]}
-      size={quality === "low" ? [0.86, 0.44] : [0.84, 0.6]}
-    />
-  );
-})}
+        return (
+          <InfoPanel
+            key={`${panel.title}-${index}`}
+            title={panel.title}
+            lines={panel.lines}
+            rotation={face}
+            position={[
+              door.side * 7.48,
+              (quality === "low" ? 1.88 : 1.86) - row * (quality === "low" ? 0.42 : 0.66),
+              z,
+            ]}
+            size={quality === "low" ? [0.86, 0.44] : [0.84, 0.6]}
+          />
+        );
+      })}
       {quality === "low" ? null : <LabSignal door={door} />}
     </group>
   );
@@ -525,11 +457,13 @@ function LabSignal({ door }: { door: (typeof DOORS)[number] }) {
   const face = faceFor(door);
   const x = door.side * 7.15;
   const z = door.z + (door.side === -1 ? -1.55 : 1.55);
+
   useFrame(({ clock }) => {
     const travel = (clock.elapsedTime * 0.22) % 1;
     if (signal.current) signal.current.position.y = stages[0] - travel * (stages[0] - stages[3]);
     if (heal.current) heal.current.position.y = stages[0] - ((clock.elapsedTime * 0.18 + 0.35) % 1) * (stages[0] - stages[3]);
   });
+
   return (
     <group>
       {["CODE", "BUILD", "TEST", "DEPLOY"].map((label, index) => (
@@ -557,7 +491,6 @@ function LabSignal({ door }: { door: (typeof DOORS)[number] }) {
   );
 }
 
-const LAB_HEADER_LINES = [lab.tagline];
 const GALLERY_CARD_LINES = ["Selected QA project"];
 const ARCHIVE = [
   { z: 0, y: 2.05 },
@@ -594,6 +527,7 @@ function GalleryRoom({
     [selected],
   );
   const columns = quality === "low" ? 2 : 4;
+
   return (
     <group>
       <RoomShell door={door} />
@@ -616,7 +550,6 @@ function GalleryRoom({
             key={client.name}
             title={client.name}
             lines={GALLERY_CARD_LINES}
-            active={project === index}
             rotation={face}
             position={[door.side * 7.48, y, z]}
             size={quality === "low" ? [0.86, 0.46] : index === 0 ? [1.35, 0.42] : [0.98, 0.46]}
@@ -673,88 +606,41 @@ function ExperienceRoom({ door, quality }: { door: (typeof DOORS)[number]; quali
   );
 }
 
-function ContactRoom({
-  door,
-  open,
-}: {
-  door: (typeof DOORS)[number];
-  open: boolean;
-}) {
+function ContactRoom({ door, open }: { door: (typeof DOORS)[number]; open: boolean }) {
   const face = faceFor(door);
-
-  const contactTexture = useMemo(
-    () =>
-      panelTexture("CONTACT", [
-        profile.email,
-        "LinkedIn",
-        "Gurugram, India",
-        "Senior QA Engineer",
-        "SDET · Automation Testing Specialist",
-      ]),
-    []
-  );
-
-  useEffect(() => {
-    return () => {
-      contactTexture.dispose();
-    };
-  }, [contactTexture]);
 
   return (
     <group>
       <RoomShell door={door} />
-
       {open && (
-        <mesh
-          position={[door.side * 7.46, 1.65, door.z]}
+        <InfoPanel
+          title="CONTACT"
+          lines={[
+            profile.email,
+            "LinkedIn",
+            "Gurugram, India",
+            "Senior QA Engineer",
+            "SDET · Automation Testing Specialist",
+          ]}
           rotation={face}
-        >
-          <planeGeometry args={[3.8, 2.15]} />
-
-          <meshStandardMaterial
-            map={contactTexture}
-            emissiveMap={contactTexture}
-            emissive="#ffffff"
-            emissiveIntensity={0.65}
-            roughness={0.7}
-            metalness={0.05}
-          />
-        </mesh>
+          position={[door.side * 7.46, 1.65, door.z]}
+          size={[3.8, 2.15]}
+        />
       )}
     </group>
   );
 }
+
 function ToolkitWall({ quality, live, reduce }: { quality: Quality; live: boolean; reduce: boolean }) {
   const [hover, setHover] = useState<number | null>(null);
-  const tiles = useMemo(() => toolkit.tools.map((tool) => ({ ...tool, texture: tileTexture(tool.mark, tool.name) })), []);
-  const header = useMemo(() => {
-    const tool = hover == null ? null : toolkit.tools[hover];
-    return headerTexture(tool ? tool.name : "MY TOOLKIT", tool ? tool.blurb : toolkit.subtitle);
-  }, [hover]);
   const spot = useRef<THREE.SpotLight>(null);
   const target = useRef<THREE.Object3D>(null);
-  const lit = useRef(0);
-  const mats = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
-  useFrame((_, delta) => {
-    const step = Math.min(delta, 0.05);
-    if (!live) lit.current = 0;
-    else lit.current = Math.min(tiles.length, lit.current + (reduce ? tiles.length : step * 4.5));
-    mats.current.forEach((material, index) => {
-      if (!material) return;
-      material.color.set(index < lit.current || index === hover ? "#ffffff" : "#4e4860");
-    });
-  });
 
-  useEffect(
-    () => () => {
-      tiles.forEach((tile) => tile.texture.dispose());
-    },
-    [tiles],
-  );
-  useEffect(() => () => header.dispose(), [header]);
   useLayoutEffect(() => {
     if (spot.current && target.current) spot.current.target = target.current;
   }, []);
+
+  const currentTool = hover !== null ? toolkit.tools[hover] : null;
 
   return (
     <group position={[0, 1.45, TOOLKIT_Z]}>
@@ -762,38 +648,31 @@ function ToolkitWall({ quality, live, reduce }: { quality: Quality; live: boolea
         <planeGeometry args={[4.15, 2.85]} />
         <meshStandardMaterial color="#100e16" />
       </mesh>
-      <mesh position={[0, 1.22, 0.02]}>
-        <planeGeometry args={[3.5, 0.48]} />
-        <meshBasicMaterial map={header} toneMapped={false} />
-      </mesh>
-      {tiles.map((tile, index) => {
+
+      <InfoPanel
+        title={currentTool ? currentTool.name : "MY TOOLKIT"}
+        lines={[currentTool ? currentTool.blurb : toolkit.subtitle]}
+        position={[0, 1.22, 0.02]}
+        rotation={[0, 0, 0]}
+        size={[3.5, 0.48]}
+      />
+
+      {toolkit.tools.map((tile, index) => {
         const column = index % 5;
         const row = Math.floor(index / 5);
         return (
-          <mesh
+          <InfoPanel
             key={tile.name}
+            title={tile.mark}
+            lines={[tile.name]}
             position={[-1.44 + column * 0.72, 0.62 - row * 0.58, 0.04]}
-            onPointerOver={(event) => {
-              event.stopPropagation();
-              document.body.style.cursor = "pointer";
-              setHover(index);
-            }}
-            onPointerOut={() => {
-              document.body.style.cursor = "";
-            }}
-          >
-            <planeGeometry args={[0.66, 0.52]} />
-            <meshBasicMaterial
-              ref={(material) => {
-                mats.current[index] = material;
-              }}
-              map={tile.texture}
-              color="#4e4860"
-              toneMapped={false}
-            />
-          </mesh>
+            rotation={[0, 0, 0]}
+            size={[0.66, 0.52]}
+            onClick={() => setHover(index)}
+          />
         );
       })}
+
       {quality === "high" ? (
         <spotLight ref={spot} position={[0, 1.8, 4.2]} angle={0.55} penumbra={0.8} intensity={6} distance={8} decay={2} color="#efe8ff" />
       ) : null}
@@ -808,22 +687,55 @@ function ToolkitWall({ quality, live, reduce }: { quality: Quality; live: boolea
   );
 }
 
-function Shell({ room, project, reduce, quality, strollRef, onEnter, onInspect, onNear }: Props) {
+function Shell({
+  room,
+  project,
+  reduce,
+  quality,
+  strollRef,
+  onEnter,
+  onInspect,
+  onNear,
+}: Props) {
   const wall = useTexture("/experience/textures/corridor/wall_texture.webp");
   const floor = useTexture("/experience/textures/corridor/kawalekpodlogi.webp");
   const ceiling = useTexture("/experience/textures/corridor/ceiling_texture.webp");
+
+  // Camera position + look target
   const desired = useRef(new THREE.Vector3(0, 1.55, -2));
   const look = useRef(new THREE.Vector3(0, 1.25, -5.6));
   const smoothedLook = useRef(new THREE.Vector3(0, 1.25, -5.6));
+
+  // Camera movement
   const velocity = useRef(0);
   const exitWheel = useRef(0);
+
+  // Mouse / drag
   const drag = useRef<{ y: number; z: number } | null>(null);
+
+  // Door state
   const nearDoor = useRef<RoomId | null>(null);
   const toolkitFlag = useRef(false);
+
   const [nearest, setNearest] = useState<RoomId | null>(null);
   const [toolkitLive, setToolkitLive] = useState(false);
+
+  // Prevent double entries / clicks during transitions
+  const isLocked = useRef(false);
+  const [transitionTarget, setTransitionTarget] = useState<RoomId | null>(null);
+
+  const lastRoomRef = useRef<RoomId>(room);
+
   const onNearRef = useRef(onNear);
   const onEnterRef = useRef(onEnter);
+
+  // =========================================================
+  // NEW: Smooth camera rotation
+  // =========================================================
+
+  const cameraYaw = useRef(0);
+  const targetYaw = useRef(0);
+
   const { camera, pointer } = useThree();
 
   useEffect(() => {
@@ -831,100 +743,602 @@ function Shell({ room, project, reduce, quality, strollRef, onEnter, onInspect, 
     onEnterRef.current = onEnter;
   }, [onEnter, onNear]);
 
+  // =========================================================
+  // Synchronize strollRef and handle room changes safely
+  // =========================================================
+
+  useEffect(() => {
+    if (room === "hub" && lastRoomRef.current !== "hub") {
+      const doorObj = DOORS.find(
+        (d) => d.id === lastRoomRef.current
+      );
+
+      if (doorObj) {
+        strollRef.current = doorObj.z;
+      }
+
+      isLocked.current = false;
+      setTransitionTarget(null);
+    } else if (room !== "hub") {
+      isLocked.current = true;
+    }
+
+    lastRoomRef.current = room;
+  }, [room, strollRef]);
+
+  // =========================================================
+  // Texture setup
+  // =========================================================
+
   useLayoutEffect(() => {
     repeat(wall, 2.2, 1);
     repeat(floor, 2, 16);
     repeat(ceiling, 2, 10);
   }, [ceiling, floor, wall]);
 
+  // =========================================================
+  // Door enter
+  // =========================================================
+
+  const handleDoorEnter = (roomId: RoomId) => {
+    if (
+      isLocked.current ||
+      room !== "hub" ||
+      transitionTarget
+    ) {
+      return;
+    }
+
+    isLocked.current = true;
+
+    // Immediately clear nearest state so "near"
+    // doesn't fight transitionTarget.
+    nearDoor.current = null;
+    setNearest(null);
+
+    if (reduce) {
+      onEnter(roomId);
+      return;
+    }
+
+    setTransitionTarget(roomId);
+  };
+
+  // =========================================================
+  // Mouse wheel navigation
+  // =========================================================
+
   useEffect(() => {
     const onWheel = (event: WheelEvent) => {
-      const target = event.target instanceof Element ? event.target : null;
-      if (target?.closest("[data-room-copy]")) return;
+      const target =
+        event.target instanceof Element
+          ? event.target
+          : null;
+
+      if (target?.closest("[data-room-copy]")) {
+        return;
+      }
+
       event.preventDefault();
+
+      if (transitionTarget || isLocked.current) {
+        return;
+      }
+
       let delta = event.deltaY;
-      if (event.deltaMode === 1) delta *= 16;
-      else if (event.deltaMode === 2) delta *= window.innerHeight;
+
+      if (event.deltaMode === 1) {
+        delta *= 16;
+      } else if (event.deltaMode === 2) {
+        delta *= window.innerHeight;
+      }
+
+      // =====================================================
+      // Leaving an active room
+      // =====================================================
+
       if (room !== "hub") {
-        if (delta < 0) exitWheel.current += -delta;
-        else exitWheel.current = 0;
+        if (delta < 0) {
+          exitWheel.current += -delta;
+        } else {
+          exitWheel.current = 0;
+        }
+
         if (exitWheel.current > 140) {
           exitWheel.current = 0;
           onEnterRef.current("hub");
         }
+
         return;
       }
+
       exitWheel.current = 0;
-      const atEnd = strollRef.current <= corridorTravel.end + 0.02;
-      const atStart = strollRef.current >= corridorTravel.start - 0.02;
+
+      const atEnd =
+        strollRef.current <=
+        corridorTravel.end + 0.02;
+
+      const atStart =
+        strollRef.current >=
+        corridorTravel.start - 0.02;
+
       if (delta > 0 && atEnd) {
-        velocity.current = Math.max(0, velocity.current);
+        velocity.current = Math.max(
+          0,
+          velocity.current
+        );
         return;
       }
+
       if (delta < 0 && atStart) {
-        velocity.current = Math.min(0, velocity.current);
+        velocity.current = Math.min(
+          0,
+          velocity.current
+        );
         return;
       }
-      strollRef.current = THREE.MathUtils.clamp(strollRef.current - delta * 0.0045, corridorTravel.end, corridorTravel.start);
-      velocity.current = THREE.MathUtils.clamp(velocity.current - delta * 0.022, -12, 12);
+
+      strollRef.current = THREE.MathUtils.clamp(
+        strollRef.current - delta * 0.0045,
+        corridorTravel.end,
+        corridorTravel.start
+      );
+
+      velocity.current = THREE.MathUtils.clamp(
+        velocity.current - delta * 0.022,
+        -12,
+        12
+      );
     };
-    window.addEventListener("wheel", onWheel, { passive: false });
-    return () => window.removeEventListener("wheel", onWheel);
-  }, [room, strollRef]);
+
+    window.addEventListener(
+      "wheel",
+      onWheel,
+      { passive: false }
+    );
+
+    return () => {
+      window.removeEventListener(
+        "wheel",
+        onWheel
+      );
+    };
+  }, [
+    room,
+    strollRef,
+    transitionTarget,
+  ]);
+
+  // =========================================================
+  // CAMERA + CORRIDOR ANIMATION
+  // =========================================================
 
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.05);
-    const entered = room === "hub" ? null : DOORS.find((door) => door.id === room);
-    if (!entered) {
-      velocity.current *= Math.exp(-dt * 2.6);
-      let next = strollRef.current + velocity.current * dt;
-      if (next <= corridorTravel.end) {
-        next = corridorTravel.end;
-        if (velocity.current < 0) velocity.current = 0;
-      } else if (next >= corridorTravel.start) {
-        next = corridorTravel.start;
-        if (velocity.current > 0) velocity.current = 0;
+
+    // Camera damping
+    const damping = reduce ? 100 : 4.5;
+
+    // =======================================================
+    // 1. MOVING INTO A ROOM
+    // =======================================================
+
+    if (transitionTarget) {
+      const targetDoor = DOORS.find(
+        (d) => d.id === transitionTarget
+      );
+
+      if (targetDoor) {
+        const inset =
+          quality === "low"
+            ? 4.45
+            : 4.02;
+
+        desired.current.set(
+          targetDoor.side * inset,
+          quality === "low"
+            ? 1.42
+            : 1.5,
+          targetDoor.z
+        );
+
+        look.current.set(
+          targetDoor.side * 7.55,
+          quality === "low"
+            ? 1.5
+            : 1.32,
+          targetDoor.z
+        );
+
+        camera.position.x =
+          THREE.MathUtils.damp(
+            camera.position.x,
+            desired.current.x,
+            damping,
+            dt
+          );
+
+        camera.position.y =
+          THREE.MathUtils.damp(
+            camera.position.y,
+            desired.current.y,
+            damping,
+            dt
+          );
+
+        camera.position.z =
+          THREE.MathUtils.damp(
+            camera.position.z,
+            desired.current.z,
+            damping,
+            dt
+          );
+
+        smoothedLook.current.x =
+          THREE.MathUtils.damp(
+            smoothedLook.current.x,
+            look.current.x,
+            damping,
+            dt
+          );
+
+        smoothedLook.current.y =
+          THREE.MathUtils.damp(
+            smoothedLook.current.y,
+            look.current.y,
+            damping,
+            dt
+          );
+
+        smoothedLook.current.z =
+          THREE.MathUtils.damp(
+            smoothedLook.current.z,
+            look.current.z,
+            damping,
+            dt
+          );
+
+        camera.lookAt(
+          smoothedLook.current
+        );
+
+        if (
+          camera.position.distanceTo(
+            desired.current
+          ) < 0.08
+        ) {
+          setTransitionTarget(null);
+          onEnterRef.current(
+            transitionTarget
+          );
+        }
       }
+
+      return;
+    }
+
+    // =======================================================
+    // Determine active room
+    // =======================================================
+
+    const entered =
+      room === "hub"
+        ? null
+        : DOORS.find(
+            (door) => door.id === room
+          );
+
+    // =======================================================
+    // 2. CORRIDOR HUB MODE
+    // =======================================================
+
+    if (!entered) {
+      velocity.current *=
+        Math.exp(-dt * 4.0);
+
+      let next =
+        strollRef.current +
+        velocity.current * dt;
+
+      if (
+        next <= corridorTravel.end
+      ) {
+        next = corridorTravel.end;
+
+        if (velocity.current < 0) {
+          velocity.current = 0;
+        }
+      } else if (
+        next >= corridorTravel.start
+      ) {
+        next = corridorTravel.start;
+
+        if (velocity.current > 0) {
+          velocity.current = 0;
+        }
+      }
+
       strollRef.current = next;
-      const depth = (corridorTravel.start - next) / (corridorTravel.start - corridorTravel.end);
-      const focus = THREE.MathUtils.smoothstep(depth, 0.78, 1);
-      desired.current.set(pointer.x * 0.1, 1.55, next);
-      look.current.set(pointer.x * 0.28, THREE.MathUtils.lerp(1.22, 1.4, focus) + pointer.y * 0.04, THREE.MathUtils.lerp(next - 3.5, TOOLKIT_Z + 0.3, focus));
+
+      // =====================================================
+      // Corridor depth
+      // =====================================================
+
+      const depth =
+        (corridorTravel.start -
+          strollRef.current) /
+        (corridorTravel.start -
+          corridorTravel.end);
+
+      const focus =
+        THREE.MathUtils.smoothstep(
+          depth,
+          0.78,
+          1
+        );
+
+      // =====================================================
+      // Camera position
+      // =====================================================
+
+      desired.current.set(
+        pointer.x * 0.1,
+        1.55,
+        strollRef.current
+      );
+
+      // =====================================================
+      // Find nearest gate
+      // =====================================================
+
+      let closestDoor:
+        | (typeof DOORS)[number]
+        | null = null;
+
+      let closestDoorDistance = Infinity;
+
+      for (const door of DOORS) {
+        const distance = Math.abs(
+          strollRef.current - door.z
+        );
+
+        if (
+          distance <
+          closestDoorDistance
+        ) {
+          closestDoorDistance = distance;
+          closestDoor = door;
+        }
+      }
+
+      // =====================================================
+      // CAMERA ROTATION
+      //
+      // Left gate  -> camera turns left
+      // Right gate -> camera turns right
+      //
+      // The rotation begins before the gate so the
+      // movement feels cinematic instead of sudden.
+      // =====================================================
+
+      if (
+        closestDoor &&
+        closestDoorDistance < 7.5
+      ) {
+        const influence =
+          THREE.MathUtils.clamp(
+            1 -
+              closestDoorDistance /
+                7.5,
+            0,
+            1
+          );
+
+        // Maximum rotation = 28 degrees
+        targetYaw.current =
+          closestDoor.side *
+          THREE.MathUtils.degToRad(28) *
+          influence;
+      } else {
+        targetYaw.current = 0;
+      }
+
+      // =====================================================
+      // Smooth camera rotation
+      // =====================================================
+
+      cameraYaw.current =
+        THREE.MathUtils.damp(
+          cameraYaw.current,
+          targetYaw.current,
+          reduce ? 12 : 3.5,
+          dt
+        );
+
+      // =====================================================
+      // Build camera look target using yaw
+      // =====================================================
+
+      const lookDistance = 4.5;
+
+      look.current.set(
+        Math.sin(cameraYaw.current) *
+          lookDistance,
+
+        THREE.MathUtils.lerp(
+          1.22,
+          1.4,
+          focus
+        ) +
+          pointer.y * 0.04,
+
+        strollRef.current -
+          Math.cos(cameraYaw.current) *
+            lookDistance
+      );
+
+      // Small mouse movement.
+      // It no longer controls the main camera direction.
+      // The gate controls the main rotation.
+      look.current.x +=
+        pointer.x * 0.12;
+
+      // =====================================================
+      // Existing nearest-door detection
+      // =====================================================
+
       let closest: RoomId | null = null;
       let best = 2.35;
+
       for (const door of DOORS) {
-        const distance = Math.abs(next - door.z);
+        const distance = Math.abs(
+          strollRef.current - door.z
+        );
+
         if (distance < best) {
           best = distance;
           closest = door.id;
         }
       }
-      if (closest !== nearDoor.current) {
+
+      if (
+        closest !== nearDoor.current
+      ) {
         nearDoor.current = closest;
         setNearest(closest);
         onNearRef.current(closest);
       }
-      const approachingToolkit = next < -29.5;
-      if (approachingToolkit !== toolkitFlag.current) {
-        toolkitFlag.current = approachingToolkit;
-        setToolkitLive(approachingToolkit);
+
+      // =====================================================
+      // Toolkit activation
+      // =====================================================
+
+      const approachingToolkit =
+        strollRef.current < -29.5;
+
+      if (
+        approachingToolkit !==
+        toolkitFlag.current
+      ) {
+        toolkitFlag.current =
+          approachingToolkit;
+
+        setToolkitLive(
+          approachingToolkit
+        );
       }
-    } else {
+    }
+
+    // =======================================================
+    // 3. INSIDE ACTIVE ROOM
+    // =======================================================
+
+    else {
       velocity.current = 0;
-      const inset = quality === "low" ? 4.45 : 4.02;
-      desired.current.set(entered.side * inset, quality === "low" ? 1.42 : 1.5, entered.z);
-      look.current.set(entered.side * 7.55, quality === "low" ? 1.5 : 1.32, entered.z);
+
+      const inset =
+        quality === "low"
+          ? 4.45
+          : 4.02;
+
+      desired.current.set(
+        entered.side * inset,
+        quality === "low"
+          ? 1.42
+          : 1.5,
+        entered.z
+      );
+
+      look.current.set(
+        entered.side * 7.55,
+        quality === "low"
+          ? 1.5
+          : 1.32,
+        entered.z
+      );
+
+      // Reset corridor yaw when inside a room.
+      targetYaw.current = 0;
+
+      cameraYaw.current =
+        THREE.MathUtils.damp(
+          cameraYaw.current,
+          0,
+          damping,
+          dt
+        );
+
       if (nearDoor.current) {
         nearDoor.current = null;
         setNearest(null);
         onNearRef.current(null);
       }
     }
-    const alpha = reduce ? 1 : 1 - Math.exp(-dt * 2.6);
-    camera.position.lerp(desired.current, alpha);
-    smoothedLook.current.lerp(look.current, alpha);
-    camera.lookAt(smoothedLook.current);
+
+    // =======================================================
+    // Final camera position damping
+    // =======================================================
+
+    camera.position.x =
+      THREE.MathUtils.damp(
+        camera.position.x,
+        desired.current.x,
+        damping,
+        dt
+      );
+
+    camera.position.y =
+      THREE.MathUtils.damp(
+        camera.position.y,
+        desired.current.y,
+        damping,
+        dt
+      );
+
+    camera.position.z =
+      THREE.MathUtils.damp(
+        camera.position.z,
+        desired.current.z,
+        damping,
+        dt
+      );
+
+    // =======================================================
+    // Final look target damping
+    // =======================================================
+
+    smoothedLook.current.x =
+      THREE.MathUtils.damp(
+        smoothedLook.current.x,
+        look.current.x,
+        damping,
+        dt
+      );
+
+    smoothedLook.current.y =
+      THREE.MathUtils.damp(
+        smoothedLook.current.y,
+        look.current.y,
+        damping,
+        dt
+      );
+
+    smoothedLook.current.z =
+      THREE.MathUtils.damp(
+        smoothedLook.current.z,
+        look.current.z,
+        damping,
+        dt
+      );
+
+    camera.lookAt(
+      smoothedLook.current
+    );
   });
+
+  // =========================================================
+  // Corridor wall segments
+  // =========================================================
 
   const leftSegments: [number, number][] = [
     [0.48, 15.05],
@@ -932,99 +1346,354 @@ function Shell({ room, project, reduce, quality, strollRef, onEnter, onInspect, 
     [-31.5, 13.05],
     [-39.6, 3.3],
   ];
+
   const rightSegments: [number, number][] = [
     [-3.53, 23.05],
     [-24, 14.1],
     [-35.5, 5.05],
     [-39.6, 3.3],
   ];
-  const activeDoor = DOORS.find((door) => door.id === room);
+
+  const activeDoor = DOORS.find(
+    (door) => door.id === room
+  );
 
   return (
     <>
-      <color attach="background" args={["#08070d"]} />
-      <fog attach="fog" args={["#120c1c", 9, 32]} />
-      <ambientLight intensity={quality === "low" ? 0.48 : quality === "medium" ? 0.28 : 0.2} />
-      <hemisphereLight args={["#4a3d72", "#100e16", quality === "high" ? 0.38 : 0.22]} />
-      {quality === "high" && room === "hub"
+      <color
+        attach="background"
+        args={["#08070d"]}
+      />
+
+      <fog
+        attach="fog"
+        args={["#120c1c", 9, 32]}
+      />
+
+      <ambientLight
+        intensity={
+          quality === "low"
+            ? 0.48
+            : quality === "medium"
+              ? 0.28
+              : 0.2
+        }
+      />
+
+      <hemisphereLight
+        args={[
+          "#4a3d72",
+          "#100e16",
+          quality === "high"
+            ? 0.38
+            : 0.22,
+        ]}
+      />
+
+      {quality === "high" &&
+      room === "hub"
         ? DOORS.map((door) => (
-            <GateLight key={door.id} position={[door.side * 0.2, 2.7, door.z + 1.2]} aim={[door.side * 2.05, 1.35, door.z]} />
+            <GateLight
+              key={door.id}
+              position={[
+                door.side * 0.2,
+                2.7,
+                door.z + 1.2,
+              ]}
+              aim={[
+                door.side * 2.05,
+                1.35,
+                door.z,
+              ]}
+            />
           ))
         : null}
-      {activeDoor ? <RoomLights door={activeDoor} quality={quality} /> : null}
+
+      {activeDoor ? (
+        <RoomLights
+          door={activeDoor}
+          quality={quality}
+        />
+      ) : null}
+
+      {/* =====================================================
+          FLOOR
+      ===================================================== */}
+
       <mesh
-        rotation={[-Math.PI / 2, 0, 0]}
+        rotation={[
+          -Math.PI / 2,
+          0,
+          0,
+        ]}
         position={[0, 0, -16]}
         onPointerDown={(event) => {
-          if (room !== "hub") return;
-          drag.current = { y: event.clientY, z: strollRef.current };
+          if (
+            room !== "hub" ||
+            transitionTarget ||
+            isLocked.current
+          ) {
+            return;
+          }
+
+          drag.current = {
+            y: event.clientY,
+            z: strollRef.current,
+          };
         }}
         onPointerMove={(event) => {
-          if (!drag.current || room !== "hub") return;
+          if (
+            !drag.current ||
+            room !== "hub" ||
+            transitionTarget
+          ) {
+            return;
+          }
+
           velocity.current = 0;
-          const pulled = event.clientY - drag.current.y;
-          strollRef.current = THREE.MathUtils.clamp(drag.current.z - pulled * 0.02, corridorTravel.end, corridorTravel.start);
+
+          const pulled =
+            event.clientY -
+            drag.current.y;
+
+          strollRef.current =
+            THREE.MathUtils.clamp(
+              drag.current.z -
+                pulled * 0.02,
+              corridorTravel.end,
+              corridorTravel.start
+            );
         }}
         onPointerUp={() => {
           drag.current = null;
         }}
       >
-        <planeGeometry args={[4.6, 54]} />
-        <meshStandardMaterial map={floor} color="#3c3850" metalness={0.62} roughness={0.28} />
+        <planeGeometry
+          args={[4.6, 54]}
+        />
+
+        <meshStandardMaterial
+          map={floor}
+          color="#3c3850"
+          metalness={0.62}
+          roughness={0.28}
+        />
       </mesh>
-      <mesh position={[0, 3.02, -16]}>
-        <boxGeometry args={[4.6, 0.08, 54]} />
-        <meshStandardMaterial map={ceiling} color="#07060c" roughness={1} />
+
+      {/* =====================================================
+          CEILING
+      ===================================================== */}
+
+      <mesh
+        position={[0, 3.02, -16]}
+      >
+        <boxGeometry
+          args={[4.6, 0.08, 54]}
+        />
+
+        <meshStandardMaterial
+          map={ceiling}
+          color="#07060c"
+          roughness={1}
+        />
       </mesh>
-      <mesh position={[0, 1.5, -40.55]}>
-        <planeGeometry args={[4.5, 3.05]} />
-        <meshStandardMaterial color="#07060c" />
+
+      {/* =====================================================
+          END WALL
+      ===================================================== */}
+
+      <mesh
+        position={[0, 1.5, -40.55]}
+      >
+        <planeGeometry
+          args={[4.5, 3.05]}
+        />
+
+        <meshStandardMaterial
+          color="#07060c"
+        />
       </mesh>
+
+      {/* =====================================================
+          CEILING LIGHTS
+      ===================================================== */}
+
       {[-1.95, 1.95].map((x) => (
-        <mesh key={`led-${x}`} position={[x, 2.9, -17]}>
-          <boxGeometry args={[0.035, 0.02, 46]} />
-          <meshBasicMaterial color="#7a5cff" toneMapped={false} />
+        <mesh
+          key={`led-${x}`}
+          position={[x, 2.9, -17]}
+        >
+          <boxGeometry
+            args={[0.035, 0.02, 46]}
+          />
+
+          <meshBasicMaterial
+            color="#7a5cff"
+            toneMapped={false}
+          />
         </mesh>
       ))}
+
+      {/* =====================================================
+          FLOOR LIGHTS
+      ===================================================== */}
+
       {[-1.7, 1.7].map((x) => (
-        <mesh key={`floor-led-${x}`} position={[x, 0.025, -17]}>
-          <boxGeometry args={[0.025, 0.012, 46]} />
-          <meshBasicMaterial color="#5b3d99" toneMapped={false} />
+        <mesh
+          key={`floor-led-${x}`}
+          position={[x, 0.025, -17]}
+        >
+          <boxGeometry
+            args={[0.025, 0.012, 46]}
+          />
+
+          <meshBasicMaterial
+            color="#5b3d99"
+            toneMapped={false}
+          />
         </mesh>
       ))}
+
+      {/* =====================================================
+          WALLS
+      ===================================================== */}
+
       {[
-        { x: -2.2, parts: leftSegments },
-        { x: 2.2, parts: rightSegments },
+        {
+          x: -2.2,
+          parts: leftSegments,
+        },
+        {
+          x: 2.2,
+          parts: rightSegments,
+        },
       ].map((wallSide) =>
-        wallSide.parts.map(([z, length]) => (
-          <mesh key={`${wallSide.x}-${z}`} position={[wallSide.x, 1.5, z]} rotation={[0, wallSide.x > 0 ? -Math.PI / 2 : Math.PI / 2, 0]}>
-            <planeGeometry args={[length, 3]} />
-            <meshStandardMaterial map={wall} color="#2a2836" roughness={0.88} metalness={0.22} />
-          </mesh>
-        )),
+        wallSide.parts.map(
+          ([z, length]) => (
+            <mesh
+              key={`${wallSide.x}-${z}`}
+              position={[
+                wallSide.x,
+                1.5,
+                z,
+              ]}
+              rotation={[
+                0,
+                wallSide.x > 0
+                  ? -Math.PI / 2
+                  : Math.PI / 2,
+                0,
+              ]}
+            >
+              <planeGeometry
+                args={[length, 3]}
+              />
+
+              <meshStandardMaterial
+                map={wall}
+                color="#2a2836"
+                roughness={0.88}
+                metalness={0.22}
+              />
+            </mesh>
+          )
+        )
       )}
+
+      {/* =====================================================
+          DOORS
+      ===================================================== */}
+
       {DOORS.map((door) => (
         <Door
           key={door.id}
           door={door}
-          open={room === door.id}
-          near={room === "hub" && nearest === door.id}
+          open={
+            room === door.id ||
+            transitionTarget === door.id
+          }
+          near={
+            room === "hub" &&
+            (
+              nearest === door.id ||
+              transitionTarget === door.id
+            )
+          }
           reduce={reduce}
           quality={quality}
-          onEnter={onEnter}
+          onEnter={handleDoorEnter}
         />
       ))}
-      <LabRoom door={DOORS[0]} quality={quality} />
-      <GalleryRoom door={DOORS[1]} project={project} quality={quality} onInspect={onInspect} />
-      <ExperienceRoom door={DOORS[2]} quality={quality} />
-      <ContactRoom door={DOORS[3]} open={room === "contact"} />
-      <ToolkitWall quality={quality} live={toolkitLive} reduce={reduce} />
+
+      {/* =====================================================
+          ROOM RENDERING
+          Only render the room being entered or active.
+      ===================================================== */}
+
+      {(room === "lab" ||
+        transitionTarget === "lab") && (
+        <LabRoom
+          door={DOORS[0]}
+          quality={quality}
+        />
+      )}
+
+      {(room === "gallery" ||
+        transitionTarget === "gallery") && (
+        <GalleryRoom
+          door={DOORS[1]}
+          project={project}
+          quality={quality}
+          onInspect={onInspect}
+        />
+      )}
+
+      {(room === "experience" ||
+        transitionTarget === "experience") && (
+        <ExperienceRoom
+          door={DOORS[2]}
+          quality={quality}
+        />
+      )}
+
+      {(room === "contact" ||
+        transitionTarget === "contact") && (
+        <ContactRoom
+          door={DOORS[3]}
+          open
+        />
+      )}
+
+      {/* =====================================================
+          TOOLKIT
+      ===================================================== */}
+
+      <ToolkitWall
+        quality={quality}
+        live={toolkitLive}
+        reduce={reduce}
+      />
+
       <FloorGuide />
+
       <WallRibs reduce={reduce} />
+
       <CeilingBays />
-      {quality === "low" ? null : <FloatingBits reduce={reduce} />}
-      {quality === "high" ? <StatusHolo reduce={reduce} /> : null}
-      {reduce ? null : <DataField quality={quality} reduce={reduce} />}
+
+      {quality === "low" ? null : (
+        <FloatingBits reduce={reduce} />
+      )}
+
+      {quality === "high" ? (
+        <StatusHolo reduce={reduce} />
+      ) : null}
+
+      {reduce ? null : (
+        <DataField
+          quality={quality}
+          reduce={reduce}
+        />
+      )}
     </>
   );
 }
@@ -1032,7 +1701,7 @@ function Shell({ room, project, reduce, quality, strollRef, onEnter, onInspect, 
 export default function CorridorCanvas(props: Props) {
   return (
     <Canvas
-      dpr={props.quality === "high" ? [1, 1.45] : props.quality === "medium" ? [1, 1.2] : [1, 1]}
+      dpr={[1, 2]}
       camera={{ position: [0, 1.55, -2], fov: props.quality === "low" ? 66 : 54, near: 0.08, far: 80 }}
       gl={{ antialias: props.quality !== "low", powerPreference: "high-performance" }}
       onCreated={({ gl }) => {

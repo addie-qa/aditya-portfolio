@@ -1,0 +1,62 @@
+
+export const timeline = {
+  eyebrow: "05  —  Record",
+  title: "Experience, projects & education",
+  lede:
+    "A record of my professional experience, engineering work, and education in software quality and test automation.",
+
+  entries: [
+    {
+      id: "radiansys",
+      when: "Jun 2022 — Aug 2026",
+      title: "SDET / QA Automation Engineer",
+      org: "Radiansys Technologies (Simpplr)",
+      place: "Gurugram, India",
+      kind: "Full-time",
+      points: [
+        "Designed and maintained scalable UI and API automation frameworks using Playwright, JavaScript, TypeScript, and Cypress.",
+        "Automated web and mobile applications, including Android and iOS testing with Appium.",
+        "Built hybrid UI and API test workflows, integrated automated suites into CI/CD pipelines, and supported continuous regression testing.",
+        "Performed API validation and performance testing using Postman and Apache JMeter.",
+        "Explored AI-assisted testing workflows, including LLM-driven test generation and self-healing automation for changing UI elements.",
+      ],
+    },
+    {
+      id: "kyro",
+      when: "Jan 2021 — Jan 2022",
+      title: "QA Engineer",
+      org: "Kyro Consulting",
+      place: "Gurugram, India",
+      kind: "Full-time",
+      points: [
+        "Performed functional, regression, and integration testing for web applications.",
+        "Created and executed test cases, documented defects, and collaborated with developers to validate fixes.",
+        "Supported test planning, defect tracking, and quality assurance throughout the software development lifecycle.",
+      ],
+    },
+    {
+      id: "healthcare-ai",
+      when: "Project",
+      title: "AI-Powered Healthcare Application",
+      org: "Mobile Test Automation",
+      place: "Android & iOS",
+      kind: "Project",
+      points: [
+        "Automated mobile workflows for an AI-powered healthcare application using Appium.",
+        "Designed and executed 300+ test cases covering application functionality and AI-generated clinical text workflows.",
+        "Validated mobile user journeys, application behavior, and integration workflows across supported platforms.",
+      ],
+    },
+    {
+      id: "bca",
+      when: "Aug 2020 — May 2023",
+      title: "BCA, Bachelor of Computer Applications",
+      org: "Himalayan Garhwal University",
+      place: "India",
+      kind: "Education",
+      points: [
+        "Completed a bachelor's degree focused on computer applications and software fundamentals.",
+      ],
+    },
+  ] ,
+};

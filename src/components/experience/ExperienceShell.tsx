@@ -138,6 +138,10 @@ export function ExperienceShell() {
         </header>
 
         <div className="flex w-full items-end justify-between gap-3">
+          {/* 
+            Strictly controlled by textOpen state.
+            When false, applies 'sr-only' so 2D text cards won't render over 3D panels in WebGL.
+          */}
           <section
             aria-label={rooms.find((item) => item.id === room)?.hint}
             data-room-copy={textOpen ? "open" : undefined}

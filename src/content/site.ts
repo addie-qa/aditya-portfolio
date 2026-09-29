@@ -11,11 +11,11 @@
 export const site = {
   name: "Aditya Arora",
   role: "SDET / QA Automation Engineer",
-  url: "https://aditya-arora.vercel.app",
-  email: "aditya.arora.works@gmail.com",
-  linkedin: "https://www.linkedin.com/in/adityaarorasde/",
-  github: "https://github.com/Adityasgit",
-  resume: "/Aditya-Arora-Resume.pdf",
+  url: "https://aditya-portfolio-liard-chi.vercel.app/",
+  email: "addie.usit@gmail.com",
+  linkedin: "https://www.linkedin.com/in/aditya-arora-331364234/",
+  github: "https://github.com/addie-qa/saucedemo",
+  resume: "/Aditya_Arora_Senior_QA_Engineer_final_Resume.pdf",
   location: "India",
   availability: "Open to SDET and Senior QA Automation interviews",
   headline: "I don't just test software. I challenge it.",
@@ -254,62 +254,40 @@ export type TimelineEntry = {
 };
 
 export const timeline = {
-  eyebrow: "05  —  Record",
-  title: "What the resume already says",
-  lede: "Employers, dates, and outcomes below are taken from the public resume. This section does not add any.",
+  eyebrow: "05 — Record",
+  title: "Experience, projects & education",
+  lede:
+    "My professional experience, projects, and education in software quality and test automation.",
+
   entries: [
     {
-      id: "techsphere",
-      when: "Jul 2024 — Present",
-      title: "Frontend Engineer",
-      org: "Techsphere",
-      place: "Mumbai",
+      id: "radiansys",
+      when: "Jan 2022 — Aug 2026",
+      title: "SDET / QA Automation Engineer",
+      org: "Radiansys Technologies",
+      place: "Gurugram, India",
       kind: "Full-time",
       points: [
-        "TheFinpedia: multi-platform campaign planning and scheduling for Meta, LinkedIn, and X, built with React, TypeScript, and Node.js. The resume notes a 30% faster campaign-creation flow.",
-        "Migrated the product from a monolith toward microfrontends, keeping shared packages and cross-app integration.",
-        "White-label subdomains and SSO with OAuth2 and SAML. The resume describes partner onboarding moving from weeks to days.",
-        "The resume credits contribution to scaling from 0 to 5,000+ B2B clients, plus 5+ production deployments.",
-        "Nakshatra IPMMI: UI, API integrations, and CI/CD with Docker and GitHub Actions.",
+        "Built and maintained UI and API automation frameworks using Playwright, JavaScript, TypeScript, and Cypress.",
+        "Automated web and mobile applications using Playwright and Appium.",
+        "Integrated automated tests into CI/CD pipelines and supported continuous regression testing.",
+        "Performed API and performance testing using Postman and Apache JMeter.",
+        "Explored AI-assisted testing, LLM-based test generation, and self-healing automation.",
       ],
     },
     {
-      id: "eddy",
-      when: "Jan 2024 — Apr 2024",
-      title: "Software Developer Intern",
-      org: "EddyTools",
-      place: "Mumbai",
-      kind: "Internship",
+      id: "kyrox",
+      when: "Jan 2021 — Dec 2022",
+      title: "QA Engineer",
+      org: "Kyrox Consulting",
+      place: "India",
+      kind: "Full-time",
       points: [
-        "Extended a drag-and-drop form builder with real-time validation and configurable rules. The resume says teams could deploy a custom form in under five minutes.",
-        "Added JSON-LD and structured metadata. The resume notes a 20% lift in Lighthouse SEO.",
+        "Performed functional, regression, and integration testing.",
+        "Created test cases, reported defects, and collaborated with developers to validate fixes.",
       ],
     },
-    {
-      id: "jobsearch",
-      when: "2024 — 2025",
-      title: "JobSearchAI",
-      org: "Independent project",
-      place: "Local-first",
-      kind: "Project",
-      points: [
-        "An agentic job search tool that reads a profile and probes public ATS platforms such as Greenhouse, Lever, and Ashby instead of relying only on aggregators.",
-        "Harvesting falls back from public JSON, to HTML parsing, to a headless Playwright pass.",
-        "Profile, keys, and history stay in the browser with sql.js and IndexedDB.",
-      ],
-    },
-    {
-      id: "rimt",
-      when: "2022 — 2025",
-      title: "BCA, Bachelor of Computer Applications",
-      org: "RIMT University",
-      place: "CGPA 8.5",
-      kind: "Education",
-      points: [
-        "Computer applications degree completed alongside the EddyTools internship and the start of the Techsphere role.",
-      ],
-    },
-  ] satisfies TimelineEntry[],
+  ],
 };
 
 export const contact = {
